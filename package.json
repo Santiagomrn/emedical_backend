@@ -1,0 +1,36 @@
+{
+  "name": "medical-portal-backend",
+  "version": "1.0.0",
+  "description": "The api services of medical-portal",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "author": "Santiago Miguel R.N.",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.0",
+    "helmet": "^4.2.0",
+    "jsonschema": "^1.4.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.12",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.4.16",
+    "objection": "^2.2.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^26.6.3",
+    "superagent": "^6.1.0",
+    "supertest": "^6.1.1"
+  }
+}
