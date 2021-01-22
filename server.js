@@ -1,7 +1,7 @@
 const app = require("./app");
 require('dotenv').config();
 
-const serverPort = process.env.SERVER_PORT || 5000;
+const serverPort = process.env.SERVER_PORT || 3000;
 
 //database conection
 var config = require('./src/database/knexfile')['development']
