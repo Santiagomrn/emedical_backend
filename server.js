@@ -14,7 +14,7 @@ knex.raw('select 1+1 as result').then(function () {
 	console.log("db connected")
     });
     
-app.listen( serverPort , function(err){
+app.listen( serverPort ,'0.0.0.0', function(err){
 	if( !err ){
 		console.log('API listen on port', serverPort );
 	}else{
