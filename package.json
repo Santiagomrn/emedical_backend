@@ -2,7 +2,7 @@
   "name": "medical-portal-backend",
   "version": "1.0.0",
   "description": "The api services of medical-portal",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
     "test": "jest",
