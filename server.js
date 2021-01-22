@@ -4,7 +4,7 @@ require('dotenv').config();
 const serverPort = process.env.SERVER_PORT || 5000;
 
 //database conection
-var config = require('./src/database/knexfile')[process.env.NODE_ENV || 'development']
+var config = require('./src/database/knexfile')['development']
 const knex=require('knex')(config)
 const { Model } = require('objection');
 
