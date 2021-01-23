@@ -11,6 +11,7 @@ const saltRounds = 10;
 const MedicalAppointment = require('../database/models/medicalAppointment');
 var nodemailer = require('nodemailer');
 const isRole = require('../middlewares/isRole');
+require('dotenv').config();
 
 var v = new Validator();
 router.post('/', isRole(['pathient']), async (req, res) => {
@@ -44,8 +45,8 @@ router.post('/', isRole(['pathient']), async (req, res) => {
                 host: 'smtp.gmail.com',
                 port: 465,
                 auth: {
-                    user: 'noreply.medicalportal@gmail.com',
-                    pass: 'Noreply_'
+                    user: process.env.USER,
+                    pass: process.env.PASS
                 }
             });
 

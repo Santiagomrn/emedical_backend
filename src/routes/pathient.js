@@ -40,8 +40,8 @@ router.post('/', async (req, res) => {
             host: 'smtp.gmail.com',
             port: 465,
             auth: {
-                user: 'noreply.medicalportal@gmail.com',
-                pass: 'Noreply_'
+                user: process.env.USER,
+                pass: process.env.PASS
             }
         });
 
