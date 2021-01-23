@@ -50,10 +50,17 @@ router.get('/',isRole(['doctor','manager']), async (req, res) => {
 
     return res.status(200).send(pathients);
 })
-router.get('/:id',isRole(['doctor','manager']), async (req, res) => {
+router.get('/:id',isRole(['doctor','manager','pathient']), async (req, res) => {
     let pathient
+  
     try {
+        //validate if is his account
+        if((req.context.rol=='pathient') && (req.params.id!=req.context.id)){
+            return res.status(401).send({ errors: "Unauthorized" })
+        }
+        
         pathient = await Pathient.query().select().where("id", req.params.id).first();
+        
         if (pathient) {
             return res.status(200).send(pathient);
         } else {

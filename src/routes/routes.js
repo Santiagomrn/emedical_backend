@@ -6,7 +6,6 @@ const medicalAppointmentRoutes= require('./medicalAppointment')
 const managerRoutes= require('./manager');
 const authenticationRoutes= require('./authentication')
 const authorization = require('../middlewares/authorization')
-const isRole = require('../middlewares/isRole');
 router.use('/login',authenticationRoutes);
 
 router.use('/pathient',pathientRoutes);
