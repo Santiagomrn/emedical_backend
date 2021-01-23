@@ -11,6 +11,7 @@ const Pathient = require('../database/models/pathient');
 const authorization = require('../middlewares/authorization');
 const isRole = require('../middlewares/isRole');
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 var v = new Validator();
 
 //everyone can create a pathient account
@@ -34,32 +35,34 @@ router.post('/', async (req, res) => {
             return res.status(500).send({ errors: "Internal Server Error" });
         }
 
+        //send Email
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            auth: {
+                user: 'noreply.medicalportal@gmail.com',
+                pass: 'Noreply_'
+            }
+        });
 
-        // var transporter = nodemailer.createTransport({
-        //     host: 'smtp.gmail.com',
-        //     port: 465,
-        //     secure: true, 
-        //     auth: {
-        //         user: 'cosasutilesparagenteutil@gmail.com',
-        //         pass: 'Monterrey1996'
-        //     }
-        // });
+        var mailOptions = {
+            from:'Medical Portal <noreply.medicalportal@gmail.com>',
+            to: 'cosasutilesparagenteutil@gmail.com',
+            subject: 'Medical Portal Pathient Account',
+            text: `Hi create account.`,
+            html:/*html*/`
+            <h1>Welcome to medical Portal</h1>
+            <p><strong>Email:</strong> ${pathient.email} <p>
+            <p><strong>Password:</strong> ${password} <p>`    
+        };
 
-        // var mailOptions = {
-        //     from: 'cosasutilesparagenteutil@gmail.com',
-        //     to: 'alejandrogc672@gmail.com',
-        //     subject: 'Sending Email using Node.js',
-        //     text: `Hi create account.`
-        //     // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
-        // };
-
-        // transporter.sendMail(mailOptions, function (error, info) {
-        //     if (error) {
-        //         console.log(error);
-        //     } else {
-        //         console.log('Email sent: ' + info.response);
-        //     }
-        // });
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
 
         return res.status(200).send(pathient);
     } else {
