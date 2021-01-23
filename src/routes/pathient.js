@@ -72,8 +72,12 @@ router.get('/:id',isRole(['doctor','manager','pathient']), async (req, res) => {
 
 })
 
-router.put('/:id',isRole(['pathient','doctor','manager']), async (req, res) => {
+router.put('/:id',isRole(['pathient','manager']), async (req, res) => {
     let pathient
+    //validate if is his account
+    if((req.context.rol=='pathient') && (req.params.id!=req.context.id)){
+        return res.status(401).send({ errors: "Unauthorized" })
+    }
     let resultValidator = v.validate(req.body, pathientSchema)
 
     if (resultValidator.valid) {
