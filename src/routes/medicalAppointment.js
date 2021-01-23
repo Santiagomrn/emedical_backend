@@ -13,7 +13,7 @@ const crypto = require("crypto");
 var v = new Validator();
 router.get('/QR/:QR', async (req, res) => {
     try { 
-        let medicalAppointment = await MedicalAppointment.query().select().where('QRCode',req.params.QR).first();
+        let medicalAppointment = await MedicalAppointment.query().select().where('QRCode',req.params.QR).withGraphFetched('[doctor,pathient]').first();
         if (medicalAppointment) {
             return res.status(200).send(medicalAppointment);
         } else {
