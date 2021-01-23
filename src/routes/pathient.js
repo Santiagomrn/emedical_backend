@@ -8,10 +8,11 @@ var Validator = require('jsonschema').Validator;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const Pathient = require('../database/models/pathient');
-const authorization = require('../middlewares/authorization')
+const authorization = require('../middlewares/authorization');
 
 var v = new Validator();
 
+//everyone can create a pathient account
 router.post('/', async (req, res) => {
     let pathient
     let resultValidator = v.validate(req.body, pathientSchema)
@@ -39,6 +40,7 @@ router.post('/', async (req, res) => {
 
 ////////////// autorization required//////////////
 router.use(authorization);
+
 router.get('/', async (req, res) => {
     //pagination params
     limit = req.query.limit ? req.query.limit : 10
