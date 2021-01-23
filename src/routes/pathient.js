@@ -10,6 +10,7 @@ const saltRounds = 10;
 const Pathient = require('../database/models/pathient');
 const authorization = require('../middlewares/authorization');
 const isRole = require('../middlewares/isRole');
+const nodemailer = require('nodemailer');
 var v = new Validator();
 
 //everyone can create a pathient account
@@ -18,6 +19,7 @@ router.post('/', async (req, res) => {
     let resultValidator = v.validate(req.body, pathientSchema)
 
     if (resultValidator.valid) {
+        let password = req.body.password;
         //hash password
         req.body.password = bcrypt.hashSync(req.body.password, saltRounds);
         //validate email
@@ -32,6 +34,33 @@ router.post('/', async (req, res) => {
             return res.status(500).send({ errors: "Internal Server Error" });
         }
 
+
+        var transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true, 
+            auth: {
+                user: 'cosasutilesparagenteutil@gmail.com',
+                pass: 'Monterrey1996'
+            }
+        });
+
+        var mailOptions = {
+            from: 'cosasutilesparagenteutil@gmail.com',
+            to: 'alejandrogc672@gmail.com',
+            subject: 'Sending Email using Node.js',
+            text: `Hi create account.`
+            // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
         return res.status(200).send(pathient);
     } else {
         return res.status(400).send({ errors: resultValidator.errors });
@@ -41,7 +70,7 @@ router.post('/', async (req, res) => {
 ////////////// autorization required//////////////
 router.use(authorization);
 
-router.get('/',isRole(['doctor','manager']), async (req, res) => {
+router.get('/', isRole(['doctor', 'manager']), async (req, res) => {
     //pagination params
     limit = req.query.limit ? req.query.limit : 10
     page = req.query.page ? (req.query.page * limit) : 0
@@ -50,17 +79,17 @@ router.get('/',isRole(['doctor','manager']), async (req, res) => {
 
     return res.status(200).send(pathients);
 })
-router.get('/:id',isRole(['doctor','manager','pathient']), async (req, res) => {
+router.get('/:id', isRole(['doctor', 'manager', 'pathient']), async (req, res) => {
     let pathient
-  
+
     try {
         //validate if is his account
-        if((req.context.rol=='pathient') && (req.params.id!=req.context.id)){
+        if ((req.context.rol == 'pathient') && (req.params.id != req.context.id)) {
             return res.status(401).send({ errors: "Unauthorized" })
         }
-        
+
         pathient = await Pathient.query().select().where("id", req.params.id).first();
-        
+
         if (pathient) {
             return res.status(200).send(pathient);
         } else {
@@ -72,10 +101,10 @@ router.get('/:id',isRole(['doctor','manager','pathient']), async (req, res) => {
 
 })
 
-router.put('/:id',isRole(['pathient','manager']), async (req, res) => {
+router.put('/:id', isRole(['pathient', 'manager']), async (req, res) => {
     let pathient
     //validate if is his account
-    if((req.context.rol=='pathient') && (req.params.id!=req.context.id)){
+    if ((req.context.rol == 'pathient') && (req.params.id != req.context.id)) {
         return res.status(401).send({ errors: "Unauthorized" })
     }
     let resultValidator = v.validate(req.body, pathientSchema)
@@ -103,9 +132,9 @@ router.put('/:id',isRole(['pathient','manager']), async (req, res) => {
         return res.status(400).send({ errors: resultValidator.errors });
     }
 })
-router.delete('/:id',isRole(['manager']),async (req, res) => {
+router.delete('/:id', isRole(['manager']), async (req, res) => {
     //validate if is his account
-    if((req.context.rol=='pathient') && (req.params.id!=req.context.id)){
+    if ((req.context.rol == 'pathient') && (req.params.id != req.context.id)) {
         return res.status(401).send({ errors: "Unauthorized" })
     }
     let pathient = await Pathient.query().deleteById(req.params.id);
@@ -119,7 +148,7 @@ router.delete('/:id',isRole(['manager']),async (req, res) => {
 //image upload
 router.use(fileUpload());
 
-router.put('/:id/image_profile', async (req, res) =>{
+router.put('/:id/image_profile', async (req, res) => {
     //console.log(req.files.file); // the uploaded file object
     let profile_picture = req.files.file;
     profile_picture.mv(__dirname + '/../pictures/' + req.files.file.md5 + ".jpg");
@@ -136,12 +165,12 @@ router.put('/:id/image_profile', async (req, res) =>{
 
 //get image upload
 router.get('/image_profile/:id_image', (req, res) => {
-    let fileName=req.params.id_image+".jpg";
-        res.status(200).sendFile(path.join(__dirname,'../pictures/')+fileName,(err)=>{
-            if(err){
-                res.status(404).send();
-            }
-        });
+    let fileName = req.params.id_image + ".jpg";
+    res.status(200).sendFile(path.join(__dirname, '../pictures/') + fileName, (err) => {
+        if (err) {
+            res.status(404).send();
+        }
+    });
 });
 
 module.exports = router

@@ -4,11 +4,12 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const router = express.Router();
 const medicalAppointmentSchema = require('../schemas/medicalAppointment');
+const Pathient = require('../database/models/pathient');
 var Validator = require('jsonschema').Validator;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const MedicalAppointment = require('../database/models/medicalAppointment');
-
+var nodemailer =require('nodemailer');
 const isRole = require('../middlewares/isRole');
 
 var v = new Validator();
@@ -36,7 +37,26 @@ router.post('/', isRole(['pathient']), async (req, res) => {
         req.body.pathientId = req.context.id;
         //inserta la cita en la base de datos
         try {
-            let medicalAppointment = await MedicalAppointment.query().insertAndFetch(req.body).withGraphFetched('[doctor,pathient]');;
+            let medicalAppointment = await MedicalAppointment.query().insertAndFetch(req.body).withGraphFetched('[doctor,pathient]');
+
+            let pathient = await Pathient.query().findById(req.context.id);
+            let transporter = nodemailer.createTransport({
+                host: "gmail",
+                auth: {
+                  user: "alejandro.rivera.mendez.012@gmail.com", // generated ethereal user
+                  pass: "zaqxswcdev12345", // generated ethereal password
+                },
+              });
+
+                // send mail with defined transport object
+            let info = await transporter.sendMail({
+                from: '"Medical Portal 👻" <alejandro.rivera.mendez.012@gmail.com>', // sender address
+                to: pathient.email, // list of receivers
+                subject: "Hello ✔", // Subject line
+                text: "medical appointment create?", // plain text body
+                html: "<b>Hello world?</b>", // html body
+            });
+
             return res.status(200).send(medicalAppointment);
         } catch (err) {
             //console.log(err)

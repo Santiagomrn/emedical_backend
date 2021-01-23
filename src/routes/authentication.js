@@ -9,12 +9,9 @@ const Manager = require('../database/models/manager');
 
 router.post('/pathient',async(req,res)=>{
     let pathient;
-    try{
-        pathient=await Pathient.query().select().where("email",req.body.email).first();
-    }catch(err){
-        res.send(500).send({errors:"internal server error"});
-    }
-  
+   
+    pathient=await Pathient.query().select().where("email",req.body.email).first();
+ 
     if(!pathient){
         return res.status(401).send({ errors: "invalid email"});
     }
