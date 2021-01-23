@@ -3,6 +3,5 @@ module.exports = (req, res, next) => {
         next()
     }else{
         return res.status(401).send({ errors: "Unauthorizad" })
-    }
-    
+    } 
 } 

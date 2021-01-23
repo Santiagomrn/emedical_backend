@@ -8,12 +8,12 @@ const authorization = require('../middlewares/authorization')
 
 router.use('/login',authenticationRoutes);
 
+router.use(authorization);
 
 router.use('/pathient',pathientRoutes);
 
 router.use('/doctor',doctorRoutes );
-//autorization///
-router.use(authorization);
+
 
 router.use('/medicalAppointment',medicalAppointmentRoutes);
 
