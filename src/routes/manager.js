@@ -9,11 +9,12 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const Manager = require('../database/models/manager');
 const authorization = require('../middlewares/authorization');
+const isRole = require('../middlewares/isRole');
 
 var v = new Validator();
 
 //everyone can create a manager account
-router.post('/', async (req, res) => {
+router.post('/',isRole(['manager']), async (req, res) => {
     let manager
     let resultValidator = v.validate(req.body, managerSchema)
     if (resultValidator.valid) {
@@ -35,7 +36,30 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.delete('/:id', async (req, res) => {
+router.get('/',isRole(['manager']), async (req, res) => {
+    //pagination params
+    limit = req.query.limit ? req.query.limit : 10
+    page = req.query.page ? (req.query.page * limit) : 0
+
+    let manager = await Manager.query().select().limit(limit).offset(page);
+
+    return res.status(200).send(manager);
+})
+router.get('/:id', isRole(['manager']),async (req, res) => {
+    let manager
+    try {
+        manager = await Manager.query().select().where("id", req.params.id).first();
+        if (manager) {
+            return res.status(200).send(manager);
+        } else {
+            return res.status(404).send({ errors: "Not Found" });
+        }
+    } catch {
+        return res.status(500).send({ errors: "Internal Server Error" });
+    }
+
+})
+router.delete('/:id', isRole(['manager']),async (req, res) => {
     let manager = await Manager.query().deleteById(req.params.id);
     if (manager == 1) {
         return res.status(200).send({ message: "ok" });

@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const Pathient = require('../database/models/pathient');
 const authorization = require('../middlewares/authorization');
-
+const isRole = require('../middlewares/isRole');
 var v = new Validator();
 
 //everyone can create a pathient account
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 ////////////// autorization required//////////////
 router.use(authorization);
 
-router.get('/', async (req, res) => {
+router.get('/',isRole(['doctor','manager']), async (req, res) => {
     //pagination params
     limit = req.query.limit ? req.query.limit : 10
     page = req.query.page ? (req.query.page * limit) : 0
@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
 
     return res.status(200).send(pathients);
 })
-router.get('/:id', async (req, res) => {
+router.get('/:id',isRole(['doctor','manager']), async (req, res) => {
     let pathient
     try {
         pathient = await Pathient.query().select().where("id", req.params.id).first();
@@ -65,7 +65,7 @@ router.get('/:id', async (req, res) => {
 
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id',isRole(['pathient','doctor','manager']), async (req, res) => {
     let pathient
     let resultValidator = v.validate(req.body, pathientSchema)
 
@@ -92,7 +92,7 @@ router.put('/:id', async (req, res) => {
         return res.status(400).send({ errors: resultValidator.errors });
     }
 })
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',isRole(['manager']),async (req, res) => {
 
     let pathient = await Pathient.query().deleteById(req.params.id);
     if (pathient == 1) {

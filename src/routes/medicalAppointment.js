@@ -9,8 +9,10 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const MedicalAppointment = require('../database/models/medicalAppointment');
 
+const isRole = require('../middlewares/isRole');
+
 var v = new Validator();
-router.post('/', async (req, res) => {
+router.post('/',isRole(['pathient']) , async (req, res) => {
 
     //valida los datos de entrada
     let resultValidator = v.validate(req.body, medicalAppointmentSchema)
@@ -41,7 +43,7 @@ router.post('/', async (req, res) => {
 })
 
 
-router.get('/', async (req, res) => {
+router.get('/',isRole(['pathient','doctor','manager']), async (req, res) => {
     //pagination params
     limit = req.query.limit ? req.query.limit : 16
     page = req.query.page ? (req.query.page * limit) : 0
@@ -58,7 +60,7 @@ router.get('/', async (req, res) => {
         return res.status(500).send({ errors: "Internal Server Error" });
     }
 })
-router.get('/:id', async (req, res) => {
+router.get('/:id',isRole(['pathient','doctor','manager']), async (req, res) => {
     let medicalAppointment
     try {
         medicalAppointment = await MedicalAppointment.query().select().where("id", req.params.id).withGraphFetched('[doctor,pathient]').first();
@@ -72,7 +74,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.put('/:id',async (req, res) => {
+router.put('/:id',isRole(['pathient','manager']),async (req, res) => {
     //valida los datos de entrada
     let resultValidator = v.validate(req.body, medicalAppointmentSchema)
     if (resultValidator.valid) {
@@ -105,7 +107,7 @@ router.put('/:id',async (req, res) => {
         return res.status(400).send({ errors: resultValidator.errors });
     }
 })
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',isRole(['pathient','manager']), async (req, res) => {
     let medicalAppointment;
     try{
         medicalAppointment= await MedicalAppointment.query().findById(req.params.id);
