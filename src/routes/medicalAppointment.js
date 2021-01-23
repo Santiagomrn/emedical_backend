@@ -9,7 +9,7 @@ var Validator = require('jsonschema').Validator;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const MedicalAppointment = require('../database/models/medicalAppointment');
-var nodemailer =require('nodemailer');
+var nodemailer = require('nodemailer');
 const isRole = require('../middlewares/isRole');
 
 var v = new Validator();
@@ -39,23 +39,37 @@ router.post('/', isRole(['pathient']), async (req, res) => {
         try {
             let medicalAppointment = await MedicalAppointment.query().insertAndFetch(req.body).withGraphFetched('[doctor,pathient]');
 
-            // let pathient = await Pathient.query().findById(req.context.id);
-            // let transporter = nodemailer.createTransport({
-            //     host: "gmail",
-            //     auth: {
-            //       user: "alejandro.rivera.mendez.012@gmail.com", // generated ethereal user
-            //       pass: "zaqxswcdev12345", // generated ethereal password
-            //     },
-            //   });
+            //send Email
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.gmail.com',
+                port: 465,
+                auth: {
+                    user: 'noreply.medicalportal@gmail.com',
+                    pass: 'Noreply_'
+                }
+            });
 
-            //     // send mail with defined transport object
-            // let info = await transporter.sendMail({
-            //     from: '"Medical Portal 👻" <alejandro.rivera.mendez.012@gmail.com>', // sender address
-            //     to: pathient.email, // list of receivers
-            //     subject: "Hello ✔", // Subject line
-            //     text: "medical appointment create?", // plain text body
-            //     html: "<b>Hello world?</b>", // html body
-            // });
+            var mailOptions = {
+                from: 'Medical Portal <noreply.medicalportal@gmail.com>',
+                to: 'cosasutilesparagenteutil@gmail.com',
+                subject: 'Medical Portal Pathient Account',
+                text: `Hi create account.`,
+                html:/*html*/`
+                    <h1>Medical Appointment Created</h1>
+                    <p><strong>Date:</strong> ${medicalAppointment.date} <p>
+                    <p><strong>Time:</strong> ${medicalAppointment.time} <p>
+                    <p><strong>Turn:</strong> ${medicalAppointment.turn} <p>
+                    <p><strong>Doctor Name:</strong> ${medicalAppointment.doctor.name} <p>
+                    <p><strong>Doctor Area:</strong> ${medicalAppointment.doctor.medicalArea} <p>`
+            };
+
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
 
             return res.status(200).send(medicalAppointment);
         } catch (err) {
