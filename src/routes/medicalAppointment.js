@@ -39,23 +39,23 @@ router.post('/', isRole(['pathient']), async (req, res) => {
         try {
             let medicalAppointment = await MedicalAppointment.query().insertAndFetch(req.body).withGraphFetched('[doctor,pathient]');
 
-            let pathient = await Pathient.query().findById(req.context.id);
-            let transporter = nodemailer.createTransport({
-                host: "gmail",
-                auth: {
-                  user: "alejandro.rivera.mendez.012@gmail.com", // generated ethereal user
-                  pass: "zaqxswcdev12345", // generated ethereal password
-                },
-              });
+            // let pathient = await Pathient.query().findById(req.context.id);
+            // let transporter = nodemailer.createTransport({
+            //     host: "gmail",
+            //     auth: {
+            //       user: "alejandro.rivera.mendez.012@gmail.com", // generated ethereal user
+            //       pass: "zaqxswcdev12345", // generated ethereal password
+            //     },
+            //   });
 
-                // send mail with defined transport object
-            let info = await transporter.sendMail({
-                from: '"Medical Portal 👻" <alejandro.rivera.mendez.012@gmail.com>', // sender address
-                to: pathient.email, // list of receivers
-                subject: "Hello ✔", // Subject line
-                text: "medical appointment create?", // plain text body
-                html: "<b>Hello world?</b>", // html body
-            });
+            //     // send mail with defined transport object
+            // let info = await transporter.sendMail({
+            //     from: '"Medical Portal 👻" <alejandro.rivera.mendez.012@gmail.com>', // sender address
+            //     to: pathient.email, // list of receivers
+            //     subject: "Hello ✔", // Subject line
+            //     text: "medical appointment create?", // plain text body
+            //     html: "<b>Hello world?</b>", // html body
+            // });
 
             return res.status(200).send(medicalAppointment);
         } catch (err) {

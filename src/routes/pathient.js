@@ -35,31 +35,31 @@ router.post('/', async (req, res) => {
         }
 
 
-        var transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true, 
-            auth: {
-                user: 'cosasutilesparagenteutil@gmail.com',
-                pass: 'Monterrey1996'
-            }
-        });
+        // var transporter = nodemailer.createTransport({
+        //     host: 'smtp.gmail.com',
+        //     port: 465,
+        //     secure: true, 
+        //     auth: {
+        //         user: 'cosasutilesparagenteutil@gmail.com',
+        //         pass: 'Monterrey1996'
+        //     }
+        // });
 
-        var mailOptions = {
-            from: 'cosasutilesparagenteutil@gmail.com',
-            to: 'alejandrogc672@gmail.com',
-            subject: 'Sending Email using Node.js',
-            text: `Hi create account.`
-            // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
-        };
+        // var mailOptions = {
+        //     from: 'cosasutilesparagenteutil@gmail.com',
+        //     to: 'alejandrogc672@gmail.com',
+        //     subject: 'Sending Email using Node.js',
+        //     text: `Hi create account.`
+        //     // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
+        // };
 
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent: ' + info.response);
-            }
-        });
+        // transporter.sendMail(mailOptions, function (error, info) {
+        //     if (error) {
+        //         console.log(error);
+        //     } else {
+        //         console.log('Email sent: ' + info.response);
+        //     }
+        // });
 
         return res.status(200).send(pathient);
     } else {
