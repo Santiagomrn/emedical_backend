@@ -11,7 +11,7 @@ const saltRounds = 10;
 const MedicalAppointment = require('../database/models/medicalAppointment');
 var nodemailer = require('nodemailer');
 const isRole = require('../middlewares/isRole');
-require('dotenv').config();
+var emailKeys= require('../mail/keys.json');
 
 var v = new Validator();
 router.post('/', isRole(['pathient']), async (req, res) => {
@@ -41,14 +41,7 @@ router.post('/', isRole(['pathient']), async (req, res) => {
             let medicalAppointment = await MedicalAppointment.query().insertAndFetch(req.body).withGraphFetched('[doctor,pathient]');
 
             //send Email
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.gmail.com',
-                port: 465,
-                auth: {
-                    user: process.env.USER,
-                    pass: process.env.PASS
-                }
-            });
+            const transporter = nodemailer.createTransport(emailKeys);
 
             var mailOptions = {
                 from: 'Medical Portal <noreply.medicalportal@gmail.com>',

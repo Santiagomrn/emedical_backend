@@ -11,7 +11,7 @@ const Pathient = require('../database/models/pathient');
 const authorization = require('../middlewares/authorization');
 const isRole = require('../middlewares/isRole');
 const nodemailer = require('nodemailer');
-require('dotenv').config();
+var emailKeys= require('../mail/keys.json');
 var v = new Validator();
 
 //everyone can create a pathient account
@@ -36,14 +36,8 @@ router.post('/', async (req, res) => {
         }
 
         //send Email
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            auth: {
-                user: process.env.USER,
-                pass: process.env.PASS
-            }
-        });
+        const transporter = nodemailer.createTransport(emailKeys);
+
 
         var mailOptions = {
             from:'Medical Portal <noreply.medicalportal@gmail.com>',
@@ -75,8 +69,8 @@ router.use(authorization);
 
 router.get('/', isRole(['doctor', 'manager']), async (req, res) => {
     //pagination params
-    limit = req.query.limit ? req.query.limit : 10
-    page = req.query.page ? (req.query.page * limit) : 0
+    let limit = req.query.limit ? req.query.limit : 10
+    let page = req.query.page ? (req.query.page * limit) : 0
 
     let pathients = await Pathient.query().select().limit(limit).offset(page);
 
