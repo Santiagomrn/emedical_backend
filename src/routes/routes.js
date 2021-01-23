@@ -10,8 +10,8 @@ router.use('/login',authenticationRoutes);
 
 router.use('/pathient',pathientRoutes);
 router.use('/doctor',doctorRoutes );
-router.use(authorization);
 router.use('/medicalAppointment',medicalAppointmentRoutes);
+router.use(authorization);
 router.use('/manager',managerRoutes);
 
 module.exports = router

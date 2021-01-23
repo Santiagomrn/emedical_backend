@@ -1,19 +1,55 @@
 'use estrict'
 const express = require('express');
-const fileUpload = require('express-fileupload');
-const path = require('path');
+
 const router = express.Router();
 const medicalAppointmentSchema = require('../schemas/medicalAppointment');
-const Pathient = require('../database/models/pathient');
+const authorization = require('../middlewares/authorization');
 var Validator = require('jsonschema').Validator;
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
 const MedicalAppointment = require('../database/models/medicalAppointment');
 var nodemailer = require('nodemailer');
 const isRole = require('../middlewares/isRole');
-var emailKeys= require('../mail/keys.json');
-
+var emailKeys = require('../mail/keys.json');
+const crypto = require("crypto");
 var v = new Validator();
+router.get('/QR/:QR', async (req, res) => {
+    try { 
+        let medicalAppointment = await MedicalAppointment.query().select().where('QRCode',req.params.QR).first();
+        if (medicalAppointment) {
+            return res.status(200).send(medicalAppointment);
+        } else {
+            return res.status(404).send({ errors: "Not Found" });
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ errors: "Internal Server Error" });
+    }
+});
+////////////// autorization required//////////////
+router.use(authorization);
+
+router.get('/:id/QR', isRole(['pathient']), async (req, res) => {
+    try {
+        //valida que la cita medica sea del paciente que solicita la actualizacion
+        let medicalAppointment = await MedicalAppointment.query().select().where("id", req.params.id).withGraphFetched('[doctor,pathient]').first();
+        if (medicalAppointment.pathientId != req.context.id) {
+            return res.status(401).send({ errors: "Unauthorized" })
+        }
+    
+        //generate crypto
+        const hmac = crypto.createHmac('sha256', process.env.PORT);
+        hmac.update(JSON.stringify(medicalAppointment));
+        let hash=hmac.digest('hex');
+  
+        medicalAppointment = await MedicalAppointment.query().select().patchAndFetchById(req.params.id,{QRCode:hash});
+        
+        return res.status(200).send({link:process.env.HOST+"/api/v1/medicalAppointment/QR/"+hash});
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ errors: "Internal Server Error" });
+    }
+
+});
+
 router.post('/', isRole(['pathient']), async (req, res) => {
 
     //valida los datos de entrada
@@ -189,5 +225,7 @@ router.delete('/:id', isRole(['pathient', 'manager']), async (req, res) => {
         return res.status(404).send({ errors: "Not Found" })
     }
 })
+
+
 
 module.exports = router
