@@ -104,7 +104,10 @@ router.put('/:id',isRole(['pathient','manager']), async (req, res) => {
     }
 })
 router.delete('/:id',isRole(['manager']),async (req, res) => {
-
+    //validate if is his account
+    if((req.context.rol=='pathient') && (req.params.id!=req.context.id)){
+        return res.status(401).send({ errors: "Unauthorized" })
+    }
     let pathient = await Pathient.query().deleteById(req.params.id);
     if (pathient == 1) {
         return res.status(200).send({ message: "ok" });

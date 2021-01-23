@@ -4,7 +4,7 @@
   "description": "The api services of medical-portal",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "test": "jest",
     "test:watch": "jest --watch"
   },
