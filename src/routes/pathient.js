@@ -11,7 +11,7 @@ const Pathient = require('../database/models/pathient');
 const authorization = require('../middlewares/authorization');
 const isRole = require('../middlewares/isRole');
 const nodemailer = require('nodemailer');
-var emailKeys= require('../mail/keys.json');
+var emailKeys = require('../mail/keys.json');
 var v = new Validator();
 
 //everyone can create a pathient account
@@ -40,14 +40,14 @@ router.post('/', async (req, res) => {
 
 
         var mailOptions = {
-            from:'Medical Portal <noreply.medicalportal@gmail.com>',
+            from: 'Medical Portal <noreply.medicalportal@gmail.com>',
             to: 'cosasutilesparagenteutil@gmail.com',
             subject: 'Medical Portal Pathient Account',
             text: `Hi create account.`,
             html:/*html*/`
             <h1>Welcome to medical Portal</h1>
             <p><strong>Email:</strong> ${pathient.email} <p>
-            <p><strong>Password:</strong> ${password} <p>`    
+            <p><strong>Password:</strong> ${password} <p>`
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
@@ -71,7 +71,9 @@ router.get('/', isRole(['doctor', 'manager']), async (req, res) => {
     //pagination params
     let limit = req.query.limit ? req.query.limit : 10
     let page = req.query.page ? (req.query.page * limit) : 0
-
+    if (req.query.name) {
+        await Pathient.query().select().where('name', 'like', '%'+req.query.name+'%').orWhere('lastName', 'like', '%'+req.query.name+'%').limit(limit).offset(page); 
+    }
     let pathients = await Pathient.query().select().limit(limit).offset(page);
 
     return res.status(200).send(pathients);

@@ -22,12 +22,11 @@ router.post('/pathient',async(req,res)=>{
             id:pathient.id
         }
         let token=jwt.sign(payload,process.env.APP_KEY, { expiresIn: 60 * 30 });
-        return res.status(200).send({token:token});
+        return res.status(200).send({token:token, id:pathient.id, rol:"pathient"});
     }else{
         return res.status(401).send({ errors: "invalid password" });
     }
 });
-
 router.post('/doctor',async(req,res)=>{
     let doctor=await Doctor.query().select().where("email",req.body.email).first();
     if(!doctor){
@@ -40,9 +39,10 @@ router.post('/doctor',async(req,res)=>{
             id:doctor.id
         }
         let token=jwt.sign(payload,process.env.APP_KEY, { expiresIn: 60 * 30 });
-        return res.status(200).send({token:token});
+        return res.status(200).send({token:token,rol:"doctor",
+        id:doctor.id});
     }else{
-        return res.status(401).send({ errors: "invalid password" });
+        return res.status(401).send({ errors: "invalid password"});
     }
 });
 
@@ -51,14 +51,14 @@ router.post('/manager',async(req,res)=>{
     if(!manager){
         return res.status(401).send({ errors: "invalid email"});
     }
-
     if(bcrypt.compareSync(req.body.password, manager.password)){
         let payload ={
             rol:"manager",
             id:manager.id
         }
         let token=jwt.sign(payload,process.env.APP_KEY, { expiresIn: 60 * 30 });
-        return res.status(200).send({token:token});
+        return res.status(200).send({token:token,rol:"manager",
+        id:manager.id});
     }else{
         return res.status(401).send({ errors: "invalid password" });
     }

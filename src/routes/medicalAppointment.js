@@ -125,7 +125,7 @@ router.get('/', isRole(['pathient', 'doctor', 'manager']), async (req, res) => {
         //return only related info
         let medicalAppointment;
         if ((req.context.rol == 'pathient')) {
-            medicalAppointment = await MedicalAppointment.query().select().where('pathientId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page);
+            medicalAppointment = await MedicalAppointment.query().select().where('pathientId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page).orderBy('name', 'desc');
         }
         if ((req.context.rol == 'doctor')) {
             medicalAppointment = await MedicalAppointment.query().select().where('doctorId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page);
