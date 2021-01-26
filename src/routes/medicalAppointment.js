@@ -6,11 +6,13 @@ const medicalAppointmentSchema = require('../schemas/medicalAppointment');
 const authorization = require('../middlewares/authorization');
 var Validator = require('jsonschema').Validator;
 const MedicalAppointment = require('../database/models/medicalAppointment');
+const Doctor = require('../database/models/doctor');
 var nodemailer = require('nodemailer');
 const isRole = require('../middlewares/isRole');
 var emailKeys = require('../mail/keys.json');
 const crypto = require("crypto");
 var v = new Validator();
+
 router.get('/QR/:QR', async (req, res) => {
     try { 
         let medicalAppointment = await MedicalAppointment.query().select().where('QRCode',req.params.QR).withGraphFetched('[doctor,pathient]').first();
@@ -60,6 +62,11 @@ router.post('/', isRole(['pathient']), async (req, res) => {
         if (todayDate > medicalAppointmentDate) {
             return res.status(403).send({ errors: "Forbidden" })
         }
+        //valida que el medico existe
+        let doctor = await Doctor.query().select().where("id", req.body.doctorId).first();
+        if (!doctor) {
+            return res.status(404).send({ errors: "The Doctor not exist" });
+        }
 
         //valida que la fecha y turno solicitado este disponible
         let reservation = await MedicalAppointment.query().select('*').where('date', req.body.date).where('turn', req.body.turn).where('doctorId', req.body.doctorId).first();
@@ -85,12 +92,12 @@ router.post('/', isRole(['pathient']), async (req, res) => {
                 subject: 'Medical Portal Pathient Account',
                 text: `Hi create account.`,
                 html:/*html*/`
-                    <h1>Medical Appointment Created</h1>
-                    <p><strong>Date:</strong> ${medicalAppointment.date} <p>
-                    <p><strong>Time:</strong> ${medicalAppointment.time} <p>
-                    <p><strong>Turn:</strong> ${medicalAppointment.turn} <p>
-                    <p><strong>Doctor Name:</strong> ${medicalAppointment.doctor.name} <p>
-                    <p><strong>Doctor Area:</strong> ${medicalAppointment.doctor.medicalArea} <p>`
+                    // <h1>Medical Appointment Created</h1>
+                    // <p><strong>Date:</strong> ${medicalAppointment.date} <p>
+                    // <p><strong>Time:</strong> ${medicalAppointment.time} <p>
+                    // <p><strong>Turn:</strong> ${medicalAppointment.turn} <p>
+                    // <p><strong>Doctor Name:</strong> ${medicalAppointment.doctor.name} <p>
+                    // <p><strong>Doctor Area:</strong> ${medicalAppointment.doctor.medicalArea} <p>`
             };
 
             transporter.sendMail(mailOptions, function (error, info) {
@@ -103,7 +110,7 @@ router.post('/', isRole(['pathient']), async (req, res) => {
 
             return res.status(200).send(medicalAppointment);
         } catch (err) {
-            //console.log(err)
+            console.log(err)
             return res.status(500).send({ errors: "Internal Server Error" });
         }
     } else {
@@ -116,22 +123,22 @@ router.get('/', isRole(['pathient', 'doctor', 'manager']), async (req, res) => {
     //pagination params
     limit = req.query.limit ? req.query.limit : 16
     page = req.query.page ? (req.query.page * limit) : 0
-
+    
     let today = new Date();
     let date = req.query.date ? (req.query.date) : today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate()
 
     console.log(date);
     try {
-        //return only related info
+        //return only related infoK
         let medicalAppointment;
         if ((req.context.rol == 'pathient')) {
-            medicalAppointment = await MedicalAppointment.query().select().where('pathientId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page).orderBy('name', 'desc');
+            medicalAppointment = await MedicalAppointment.query().select().where('pathientId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page).orderBy('date', 'desc');
         }
         if ((req.context.rol == 'doctor')) {
-            medicalAppointment = await MedicalAppointment.query().select().where('doctorId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page);
+            medicalAppointment = await MedicalAppointment.query().select().where('doctorId', req.context.id).withGraphFetched('[doctor,pathient]').limit(limit).offset(page).orderBy('date', 'desc');
         }
         if ((req.context.rol == 'manager')) {
-            medicalAppointment = await MedicalAppointment.query().select().withGraphFetched('[doctor,pathient]').limit(limit).offset(page);
+            medicalAppointment = await MedicalAppointment.query().select().withGraphFetched('[doctor,pathient]').limit(limit).offset(page).orderBy('date', 'desc');
         }
 
         return res.status(200).send(medicalAppointment);
@@ -140,6 +147,7 @@ router.get('/', isRole(['pathient', 'doctor', 'manager']), async (req, res) => {
         return res.status(500).send({ errors: "Internal Server Error" });
     }
 })
+
 router.get('/:id', isRole(['pathient', 'doctor', 'manager']), async (req, res) => {
     let medicalAppointment
     try {
@@ -161,7 +169,12 @@ router.put('/:id', isRole(['pathient', 'manager']), async (req, res) => {
     //valida los datos de entrada
     let resultValidator = v.validate(req.body, medicalAppointmentSchema)
     if (resultValidator.valid) {
-
+        //valida que el medico existe
+        let doctor = await Doctor.query().select().where("id", req.body.doctorId).first();
+        if (!doctor) {
+            return res.status(404).send({ errors: "The Doctor not exist" });
+        }
+     
         if ((req.context.rol == 'pathient')) {
             //valida que la cita medica sea del paciente que solicita la actualizacion
             let medicalAppointment = await MedicalAppointment.query().select().where("id", req.params.id).withGraphFetched('[doctor,pathient]').first();
