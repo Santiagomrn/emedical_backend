@@ -16,7 +16,6 @@ exports.up = function(knex) {
         t.string('professionalLicense').notNullable();
         t.string('nationality').notNullable();
         t.enu('maritalStatus',["casado","soltero","divorciado","viudo"]);
-        t.string('imageProfilePath');
         t.timestamps(true,true);
     })
 

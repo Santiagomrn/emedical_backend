@@ -9,10 +9,8 @@ exports.up = function(knex) {
         t.string('emergencyPhone',15).notNullable();
         t.string('password',100).notNullable();
         t.date('birthdate').notNullable();
-        t.string('imageProfile');
         t.timestamps(true,true);
     })
-
 };
 
 exports.down = function(knex) {
