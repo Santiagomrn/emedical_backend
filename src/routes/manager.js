@@ -13,7 +13,7 @@ const isRole = require('../middlewares/isRole');
 
 var v = new Validator();
 
-router.post('/',isRole(['manager']), async (req, res) => {
+router.post('/', async (req, res) => {
     //valida el codigo de creación del manager
     if(req.query.code!= process.env.CODE){
         return res.status(401).send({ errors: "Unauthorized" })
