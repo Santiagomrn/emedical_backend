@@ -13,8 +13,12 @@ const isRole = require('../middlewares/isRole');
 
 var v = new Validator();
 
-//everyone can create a manager account
 router.post('/',isRole(['manager']), async (req, res) => {
+    //valida el codigo de creación del manager
+    if(req.query.code!= process.env.CODE){
+        return res.status(401).send({ errors: "Unauthorized" })
+    }
+
     let manager
     let resultValidator = v.validate(req.body, managerSchema)
     if (resultValidator.valid) {
@@ -36,6 +40,7 @@ router.post('/',isRole(['manager']), async (req, res) => {
     }
 })
 
+router.use(authorization);
 router.get('/',isRole(['manager']), async (req, res) => {
     //pagination params
     limit = req.query.limit ? req.query.limit : 10
