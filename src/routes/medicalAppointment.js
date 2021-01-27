@@ -28,6 +28,15 @@ router.get('/QR/:QR', async (req, res) => {
 });
 ////////////// autorization required//////////////
 router.use(authorization);
+router.get('/turn/NotAvailable',isRole(['pathient', 'doctor', 'manager']),async (req,res)=>{
+    if(req.query.date){
+        let date;
+        let medicalAppointment = await MedicalAppointment.query().select('turn').where('date',req.query.date);
+        return res.status(200).send(medicalAppointment);
+    }else{
+        return res.status(400).send({errors: "bad request"})
+    }
+});
 
 router.get('/:id/QR', isRole(['pathient']), async (req, res) => {
     try {
@@ -118,15 +127,7 @@ router.post('/', isRole(['pathient']), async (req, res) => {
     }
 })
 
-router.get('/available',isRole(['pathient', 'doctor', 'manager']),async (req,res)=>{
-    if(req.query.date){
-        let date;
-        let medicalAppointment = await MedicalAppointment.query().select('turn').where('date',req.query.date);
-        return res.status(200).send(medicalAppointment);
-    }else{
-        return res.status(400).send({errors: "bad request"})
-    }
-});
+
 
 router.get('/', isRole(['pathient', 'doctor', 'manager']), async (req, res) => {
     //pagination params
