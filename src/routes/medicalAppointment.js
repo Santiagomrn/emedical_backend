@@ -17,7 +17,15 @@ router.get('/QR/:QR', async (req, res) => {
     try { 
         let medicalAppointment = await MedicalAppointment.query().select().where('QRCode',req.params.QR).withGraphFetched('[doctor,pathient]').first();
         if (medicalAppointment) {
-            return res.status(200).send(medicalAppointment);
+            //return res.status(200).send(medicalAppointment);
+            res.send(/*html*/`
+            <h1>Medical Appointment Information</h1>
+            <p><strong>Pathient:</strong> ${medicalAppointment.pathient.name+" "+medicalAppointment.pathient.lastName} <p>
+           <p><strong>Date:</strong> ${medicalAppointment.date} <p>
+           <p><strong>Time:</strong> ${medicalAppointment.time} <p>
+           <p><strong>Turn:</strong> ${medicalAppointment.turn} <p>
+           <p><strong>Doctor Name:</strong> ${medicalAppointment.doctor.name} <p>
+           <p><strong>Doctor Area:</strong> ${medicalAppointment.doctor.medicalArea} <p>`)
         } else {
             return res.status(404).send({ errors: "Not Found" });
         }
@@ -42,6 +50,9 @@ router.get('/:id/QR', isRole(['pathient']), async (req, res) => {
     try {
         //valida que la cita medica sea del paciente que solicita la actualizacion
         let medicalAppointment = await MedicalAppointment.query().select().where("id", req.params.id).withGraphFetched('[doctor,pathient]').first();
+        if(!medicalAppointment){
+            return res.status(404).send({ errors: "Not Found" });
+        }
         if (medicalAppointment.pathientId != req.context.id) {
             return res.status(401).send({ errors: "Unauthorized" })
         }
@@ -71,7 +82,7 @@ router.post('/', isRole(['pathient']), async (req, res) => {
         if (todayDate > medicalAppointmentDate) {
             return res.status(403).send({ errors: "Forbidden" })
         }
-        //valida que el medico existe
+        //valida que el medico existeKK
         let doctor = await Doctor.query().select().where("id", req.body.doctorId).first();
         if (!doctor) {
             return res.status(404).send({ errors: "The Doctor not exist" });
@@ -99,14 +110,14 @@ router.post('/', isRole(['pathient']), async (req, res) => {
                 from: 'Medical Portal <noreply.medicalportal@gmail.com>',
                 to: 'cosasutilesparagenteutil@gmail.com',
                 subject: 'Medical Portal Pathient Account',
-                text: `Hi create account.`,
+                text: `Medical Appointment`,
                 html:/*html*/`
-                    // <h1>Medical Appointment Created</h1>
-                    // <p><strong>Date:</strong> ${medicalAppointment.date} <p>
-                    // <p><strong>Time:</strong> ${medicalAppointment.time} <p>
-                    // <p><strong>Turn:</strong> ${medicalAppointment.turn} <p>
-                    // <p><strong>Doctor Name:</strong> ${medicalAppointment.doctor.name} <p>
-                    // <p><strong>Doctor Area:</strong> ${medicalAppointment.doctor.medicalArea} <p>`
+                     <h1>Medical Appointment Created</h1>
+                    <p><strong>Date:</strong> ${medicalAppointment.date} <p>
+                    <p><strong>Time:</strong> ${medicalAppointment.time} <p>
+                    <p><strong>Turn:</strong> ${medicalAppointment.turn} <p>
+                    <p><strong>Doctor Name:</strong> ${medicalAppointment.doctor.name} <p>
+                    <p><strong>Doctor Area:</strong> ${medicalAppointment.doctor.medicalArea} <p>`
             };
 
             transporter.sendMail(mailOptions, function (error, info) {

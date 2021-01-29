@@ -3,6 +3,6 @@
     "port": 465,
     "auth": {
         "user": "noreply.medicalportal@gmail.com",
-        "pass": "Noreply"
+        "pass": "Noreply_"
     }
 }

@@ -8,7 +8,8 @@ const bodyParser = require('body-parser');
 
 const routes = require('./src/routes/routes')
 const app = express();
-
+// View engine setup 
+app.set('view engine', 'ejs'); 
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
