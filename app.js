@@ -8,14 +8,14 @@ const bodyParser = require('body-parser');
 
 const routes = require('./src/routes/routes')
 const app = express();
-// View engine setup 
-app.set('view engine', 'ejs'); 
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(morgan('dev'));
 app.use(helmet());
-//CORS configuration
+/**
+ * Configuración de CORS
+ */
 app.use(cors({
   	origin: '*',
   	methods: [
@@ -27,11 +27,11 @@ app.use(cors({
   		allowedHeaders: ['Content-Type', 'Authorization']
 	}));
 
-
-//routes
+/**
+ * Componente de rutas.
+ */
 app.use('/api/v1',routes)
 
-//default answer
 app.use((req,res) => {
 	res.status(404).send({error:"Resource not found"});
 } );
