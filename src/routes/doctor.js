@@ -37,7 +37,7 @@ router.get(
    * @param {object} res
    * @param {object} req
    * @param {int} req.params.id
-   * @returns {object} Retorna informacion de un doctor con la req.params.id como id, con paginacion.
+   * @returns {object} Retorna informacion de un doctor con la req.params.id como id.
    */
   async (req, res) => {
     let doctor;

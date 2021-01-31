@@ -51,6 +51,9 @@ router.post(
   }
 );
 
+/**
+    Uso de mideware de autorizacion
+*/
 router.use(authorization);
 router.get(
   "/",
@@ -76,7 +79,13 @@ router.get(
 router.get(
   "/:id",
   isRole(["manager"]),
-
+  /**
+   * Retorna informacion de un manager
+   * @param {object} res
+   * @param {object} req
+   * @param {int} req.params.id
+   * @returns {object} Retorna informacion de un manager con la req.params.id como id.
+   */
   async (req, res) => {
     let manager;
     try {
