@@ -13,7 +13,13 @@ var emailKeys = require('../mail/keys.json');
 const crypto = require("crypto");
 var v = new Validator();
 
-router.get('/QR/:QR', async (req, res) => {
+router.get('/QR/:QR', 
+/**
+ * Retorna información de la cita que corresponde al codigo QR
+ * @param {string} req.params.QR
+ * @returns {string} retorna informacion sobre sobre la cita.
+ */
+async (req, res) => {
     try { 
         let medicalAppointment = await MedicalAppointment.query().select().where('QRCode',req.params.QR).withGraphFetched('[doctor,pathient]').first();
         if (medicalAppointment) {
@@ -36,9 +42,14 @@ router.get('/QR/:QR', async (req, res) => {
 });
 ////////////// autorization required//////////////
 router.use(authorization);
-router.get('/turn/NotAvailable',isRole(['pathient', 'doctor', 'manager']),async (req,res)=>{
+router.get('/turn/NotAvailable',isRole(['pathient', 'doctor', 'manager']),
+/**
+ * Retorna información sobre los turnos de citas no disponibles u ocupados de ese dia.
+ * @param {string} req.query.date
+ * @returns {object} Retorna información sobre los turnos de citas no disponibles u ocupados de ese dia.
+ */
+async (req,res)=>{
     if(req.query.date){
-        let date;
         let medicalAppointment = await MedicalAppointment.query().select('turn').where('date',req.query.date);
         return res.status(200).send(medicalAppointment);
     }else{
@@ -46,7 +57,13 @@ router.get('/turn/NotAvailable',isRole(['pathient', 'doctor', 'manager']),async 
     }
 });
 
-router.get('/:id/QR', isRole(['pathient']), async (req, res) => {
+router.get('/:id/QR', isRole(['pathient']), 
+/**
+ * Genera el codigo QR para el acceso a la informacion de la cita.
+ * @param {string} req.params.id
+ * @returns {object} Retorna un link que permite acceder a la informacio de la cita
+ */
+async (req, res) => {
     try {
         //valida que la cita medica sea del paciente que solicita la actualizacion
         let medicalAppointment = await MedicalAppointment.query().select().where("id", req.params.id).withGraphFetched('[doctor,pathient]').first();
