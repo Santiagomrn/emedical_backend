@@ -165,6 +165,8 @@ router.put(
     let resultValidator = v.validate(req.body, pathientSchema);
 
     if (resultValidator.valid) {
+     //delete password
+     delete req.body.password;
       try {
         pathient = await Pathient.query()
           .where("email", req.body.email)
@@ -174,7 +176,7 @@ router.put(
           return res.status(400).send({ errors: "Email already exist" });
         }
 
-        pathient = await Pathient.query().updateAndFetchById(
+        pathient = await Pathient.query().patchAndFetchById(
           req.params.id,
           req.body
         );
