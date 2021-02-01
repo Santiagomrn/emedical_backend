@@ -169,7 +169,7 @@ router.put(
      delete req.body.password;
       try {
         pathient = await Pathient.query()
-          .where("email", req.body.email)
+          .where("email", req.body.email).whereNot("id",req.params.id)
           .first();
 
         if (pathient) {
